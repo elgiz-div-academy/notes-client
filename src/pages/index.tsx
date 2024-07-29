@@ -5,13 +5,18 @@ import { AuthApiHooks } from "@/store/api/auth.api";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Spinner } from "@/components/ui/spinner";
 import toast from "react-hot-toast";
-import { useNavigate } from "@/router";
+import { Navigate } from "@/router";
+import { useAppSelector } from "@/store";
 
 export default function LoginComponent() {
   const { login, isLoading } = AuthApiHooks.useLogin();
+  const token = useAppSelector((state) => state.auth.token);
 
-  const navigate = useNavigate();
   const { handleSubmit, register } = useForm({ mode: "onSubmit" });
+
+  if (token?.length) {
+    return <Navigate to="/notes" />;
+  }
 
   if (isLoading) {
     return (
@@ -26,7 +31,6 @@ export default function LoginComponent() {
   const onSubmit: SubmitHandler<any> = async (data) => {
     try {
       await login(data);
-      navigate("/notes");
     } catch (err: any) {
       if (err.message || err?.data?.message) {
         toast.dismiss();
